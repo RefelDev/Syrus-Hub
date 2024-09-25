@@ -280,7 +280,7 @@ local function setNoClip(enabled)
 end
 
 local function onInputBegan(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == Enum.KeyCode.V then
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.N then
         setNoClip(not noClipEnabled)
     end
 end
