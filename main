@@ -1,0 +1,1040 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({
+        Name = "Syrus Hub - The Skinwalker Gui 💀", HidePremium = false, 
+        SaveConfig = true, 
+        ConfigFolder = "OrionTest"
+    })
+
+
+local Tab = Window:MakeTab({
+	Name = "⭐ About ⭐",
+	Icon = "rbxassetid://",
+	PremiumOnly = false
+})
+
+local Section = Tab:AddSection({
+	Name = "About"
+})
+
+OrionLib:Init()
+
+Tab:AddParagraph("The Skinwalker Gui","Made by: Syrus")
+Tab:AddParagraph("Status: ✅")
+Tab:AddParagraph("Feature","\
+- Fly, Speed, Noclip\
+- Infinite Stamina\
+- Infinite Power\
+- Free Gamepasses\
+- Auto-Farm Survival\
+- Shop Open")
+
+local Tab = Window:MakeTab({
+	Name = "💀 Exploit 💀",
+	Icon = "rbxassetid://",
+	PremiumOnly = false
+})
+
+local Section = Tab:AddSection({
+	Name = "💻 Visual "
+})
+
+Tab:AddButton({
+	Name = "Scrap ESP",
+	Callback = function()
+		local Players = game:GetService("Players")
+		local Workspace = game:GetService("Workspace")
+		local RunService = game:GetService("RunService")
+
+		local HighlightConfig = {
+			ObjectNames = { "Sheet", "Circle", "Pipe" }
+		}
+
+		local distanceLabels = {}
+
+		local function createDistanceLabel(object)
+			local distanceLabel = Instance.new("BillboardGui")
+			distanceLabel.Adornee = object
+			distanceLabel.Size = UDim2.new(0, 80, 0, 20)
+			distanceLabel.StudsOffset = Vector3.new(0, 2, 0)
+			distanceLabel.AlwaysOnTop = true
+			distanceLabel.Parent = object
+
+			local textLabel = Instance.new("TextLabel")
+			textLabel.Size = UDim2.new(1, 0, 1, 0)
+			textLabel.BackgroundTransparency = 1
+			textLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+			textLabel.TextScaled = true
+			textLabel.Font = Enum.Font.GothamBold
+			textLabel.TextStrokeTransparency = 0.5
+			textLabel.TextSize = 2
+			textLabel.Parent = distanceLabel
+
+			local tweenService = game:GetService("TweenService")
+			local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+			local goal = { Position = UDim2.new(0, 0, 0, 5) }
+
+			local tween = tweenService:Create(textLabel, tweenInfo, goal)
+			tween:Play()
+
+			distanceLabels[object] = textLabel
+		end
+
+		local function updateDistanceLabel(label, object, player)
+			local character = player.Character
+			if character and character:FindFirstChild("HumanoidRootPart") then
+				local distance = (object.Position - character.HumanoidRootPart.Position).Magnitude
+				label.Text = string.format("%d M", math.floor(distance))
+			end
+		end
+
+		local function highlightAndLabelObjects()
+			local player = Players.LocalPlayer
+
+			for _, object in ipairs(Workspace.Scrap:GetChildren()) do
+				for _, name in ipairs(HighlightConfig.ObjectNames) do
+					if object.Name == name and not distanceLabels[object] then
+						createDistanceLabel(object)
+
+						RunService.RenderStepped:Connect(function()
+							updateDistanceLabel(distanceLabels[object], object, player)
+						end)
+						break
+					end
+				end
+			end
+		end
+
+		local function clearDistanceLabelOnObjectRemoving(object)
+			if object then
+				local label = distanceLabels[object]
+				if label then
+					label.Parent:Destroy()
+					distanceLabels[object] = nil
+				end
+			end
+		end
+
+		local function monitorScrapObjects()
+			local scrapFolder = Workspace:WaitForChild("Scrap")
+
+			scrapFolder.ChildAdded:Connect(function(newObject)
+				highlightAndLabelObjects()
+			end)
+
+			scrapFolder.ChildRemoved:Connect(clearDistanceLabelOnObjectRemoving)
+		end
+
+		local function initialize()
+			local scrapFolder = Workspace:FindFirstChild("Scrap")
+			if not scrapFolder then
+				OrionLib:MakeNotification({
+					Name = "Wrong game!",
+					Content = "Scrap folder not found, You might be in the wrong game.",
+					Time = 5
+				})
+				return
+			end
+
+			OrionLib:MakeNotification({
+				Name = "Scrap Esp Activated!",
+				Content = "Now you can see all scraps on the map.",
+				Time = 5
+			})
+
+			highlightAndLabelObjects()
+			monitorScrapObjects()
+		end
+
+		initialize()
+	end    
+})
+
+Tab:AddButton({
+	Name = "FullBright",
+	Callback = function()
+	  OrionLib:MakeNotification({
+	Name = "FullBright Activated!",
+	Content = "Now you can see better at night.",
+	Time = 5
+})
+      	   local function setFullBright()
+    local lighting = game:GetService("Lighting")
+    lighting.Brightness = 2
+    lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+    lighting.Ambient = Color3.new(1, 1, 1)
+    lighting.TimeOfDay = "12:00"
+end
+
+setFullBright()
+  	end    
+})
+
+Tab:AddButton({
+	Name = "Open Shop",
+	Callback = function()
+    OrionLib:MakeNotification({
+	Name = "The Shop GUI has been opened.",
+	Content = "Now you can buy whatever you want at any time.",
+	Time = 6
+})
+                    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+
+local LocalPlayer = Players.LocalPlayer
+local ShopOpen = false
+local isTransitioning = false
+
+local function updatePrices(ShopGUI)
+    for _, v in ShopGUI:WaitForChild("ScrollingFrame"):GetChildren() do
+        if v:IsA("Frame") then
+            local Price = v:FindFirstChild("Price")
+            if Price and ReplicatedStorage.Prices:FindFirstChild(v.Name) then
+                Price.Text = ReplicatedStorage.Prices[v.Name].Value .. " CR"
+            end
+        end
+    end
+end
+
+local function closeShop(ShopGUIClone, ShopGUI)
+    if isTransitioning then return end
+    isTransitioning = true
+    
+    ShopGUI.Close:Play()
+    TweenService:Create(Lighting.ShopBlur, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Size = 0}):Play()
+    
+    local closeTween = TweenService:Create(ShopGUI, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), {Position = UDim2.new(1.5, 0, 0.5, 0)})
+    closeTween:Play()
+    closeTween.Completed:Wait()
+    
+    ShopGUIClone:Destroy()
+    ShopOpen = false
+    isTransitioning = false
+end
+
+local function openShop()
+    if ShopOpen then return end
+    ShopOpen = true
+
+    local ShopGUIClone = ReplicatedStorage:WaitForChild("ShopGUI"):Clone()
+    ShopGUIClone.Parent = LocalPlayer.PlayerGui
+    local ShopGUI = ShopGUIClone:WaitForChild("ShopGUI")
+
+    TweenService:Create(Lighting.ShopBlur, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Size = 15}):Play()
+    ShopGUI.Open:Play()
+    ShopGUI.Position = UDim2.new(1.5, 0, 0.5, 0)
+
+    TweenService:Create(ShopGUI, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+    
+    updatePrices(ShopGUI)
+
+    local CloseButton = ShopGUI:WaitForChild("CloseButton")
+    CloseButton.Activated:Connect(function()
+        if not isTransitioning then
+            closeShop(ShopGUIClone, ShopGUI)
+        end
+    end)
+end
+
+local function toggleShop()
+    if ShopOpen then
+        closeShop(LocalPlayer.PlayerGui:FindFirstChild("ShopGUI"), LocalPlayer.PlayerGui:FindFirstChild("ShopGUI"))
+    else
+        openShop()
+    end
+end
+
+toggleShop()
+          end    
+})
+
+local Section = Tab:AddSection({
+	Name = "🚶‍♂️ Player 🚶‍♂️"
+})
+Tab:AddButton({
+	Name = "Speed",
+	Callback = function()
+    OrionLib:MakeNotification({
+	Name = "Speed Activated!",
+	Content = "Press N to Start/Stop the Speed.",
+	Time = 8
+})
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local userInputService = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+
+local noClipEnabled = false
+local grounded = true
+local normalWalkSpeed = 16
+local noClipSpeed = 70
+
+local function setNoClip(enabled)
+    noClipEnabled = enabled
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = not enabled
+        end
+    end
+end
+
+local function onInputBegan(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.V then
+        setNoClip(not noClipEnabled)
+    end
+end
+
+runService.RenderStepped:Connect(function()
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        grounded = humanoid:GetState() == Enum.HumanoidStateType.Freefall or humanoid:GetState() == Enum.HumanoidStateType.Seated
+
+        if noClipEnabled then
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.Velocity = character.Humanoid.MoveDirection * noClipSpeed
+                    part.CanCollide = false
+                end
+            end
+
+            if not grounded then
+                humanoid.PlatformStand = false
+            else
+                humanoid.PlatformStand = true
+            end
+        else
+            if not grounded then
+                humanoid.PlatformStand = false
+            else
+                humanoid.PlatformStand = true
+            end
+        end
+    end
+end)
+
+userInputService.InputBegan:Connect(onInputBegan)
+
+setNoClip(false)
+end    
+})
+
+Tab:AddButton({
+	Name = "Fly",
+	Callback = function()
+    OrionLib:MakeNotification({
+	Name = "Fly Activated!",
+	Content = "Now you can fly around the map.",
+	Time = 8
+})
+            loadstring(game:HttpGet('https://pastebin.com/raw/YSL3xKYU'))()
+            end    
+})
+
+Tab:AddButton({
+	Name = "NoClip",
+	Callback = function()
+    OrionLib:MakeNotification({
+	Name = "NoClip Activated!",
+	Content = "Press N to Start/Stop the NoClip.",
+	Time = 8
+})
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local userInputService = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+
+local noClipEnabled = false
+
+local function setNoClip(enabled)
+    noClipEnabled = enabled
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = not enabled
+            if not enabled then
+                part.Velocity = Vector3.new(0, 0, 0)
+            end
+        end
+    end
+end
+
+local function onInputBegan(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.N then
+        setNoClip(not noClipEnabled)
+    end
+end
+
+runService.RenderStepped:Connect(function()
+    if noClipEnabled then
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Velocity = character.Humanoid.MoveDirection * 25
+            end
+        end
+    end
+end)
+
+userInputService.InputBegan:Connect(onInputBegan)
+
+setNoClip(false)
+end    
+})
+
+
+Tab:AddButton({
+	Name = "Infinite Stamina",
+	Callback = function()
+    OrionLib:MakeNotification({
+	Name = "Infinite Stamina Activated!",
+	Content = "Now, you can run infinitely.",
+	Time = 8
+})
+            local player = game.Players.LocalPlayer
+local stamina = game.Workspace.Alive:WaitForChild(player.Name):WaitForChild("Stamina")
+
+local MAX_STAMINA = 800
+
+local function maintainStamina()
+    while true do
+        stamina.Value = MAX_STAMINA
+        wait(0.1)
+    end
+end
+
+maintainStamina()
+            end    
+})
+
+Tab:AddButton({
+	Name = "Infinite Power",
+	Callback = function()
+    OrionLib:MakeNotification({
+	Name = "Infinite Power Activated!",
+	Content = "Now your power will never end.",
+	Time = 6
+})
+            local player = game.Players.LocalPlayer
+local power = game.Workspace.Alive:WaitForChild(player.Name):WaitForChild("Power")
+
+local MAX_POWER = 800
+
+local function maintainPower()
+    while true do
+        power.Value = MAX_POWER
+        wait(0.1)
+    end
+end
+
+maintainPower()
+end    
+})
+
+local Section = Tab:AddSection({
+	Name = "📰 Scrap 📰"
+})   
+
+Tab:AddButton({
+	Name = "Instant ProximityPrompts",
+	Callback = function()
+    OrionLib:MakeNotification({
+	Name = "Instant ProximityPrompts Activated!",
+	Content = "Now your ProximityPrompts are instantaneous.",
+	Time = 7
+})
+local scrapFolder = game.Workspace:WaitForChild("Scrap")
+
+while true do
+    local startIndex = 1
+    local endIndex = math.min(500, #scrapFolder:GetChildren())
+
+    local items = scrapFolder:GetChildren()
+
+    for index = startIndex, endIndex do
+        local item = items[index]
+
+        if item then
+            local prompt = item:FindFirstChild("Grab")
+            
+            if prompt and prompt:IsA("ProximityPrompt") then
+                prompt.HoldDuration = 0
+            end
+        end
+    end
+
+    wait(0.5)
+end
+    end
+})
+
+Tab:AddButton({
+	Name = "Infinite Distance",
+	Callback = function()
+    OrionLib:MakeNotification({
+	Name = "Infinite Distance Activated!",
+	Content = "Now your MaxActivationDistance are infinite.",
+	Time = 7
+})
+local scrapFolder = game.Workspace:WaitForChild("Scrap")
+
+while true do
+    local startIndex = 1
+    local endIndex = math.min(500, #scrapFolder:GetChildren())
+
+    local items = scrapFolder:GetChildren()
+
+    for index = startIndex, endIndex do
+        local item = items[index]
+
+        if item then
+            local prompt = item:FindFirstChild("Grab")
+            
+            if prompt and prompt:IsA("ProximityPrompt") then
+                prompt.MaxActivationDistance = 10000
+            end
+        end
+    end
+
+    wait(0.5)
+end
+    end
+})
+
+print("Loading Bypass...")
+
+local player = game.Players.LocalPlayer
+
+local success = true
+
+local acPlayerScripts = player.PlayerScripts:FindFirstChild("AC")
+if acPlayerScripts then
+    acPlayerScripts:Destroy()
+else
+    success = false
+end
+
+local bug = game.ReplicatedStorage:FindFirstChild("Anticheat")
+if bug then
+    bug:Destroy()
+else
+    success = false
+end
+
+local acStarterPlayerScripts = game.StarterPlayer.StarterPlayerScripts:FindFirstChild("AC")
+if acStarterPlayerScripts then
+    acStarterPlayerScripts:Destroy()
+else
+    success = false
+end
+
+if success then
+    print("Bypass Loaded Successfully")
+else
+    print("Anticheat not found, are you in the right game?")
+end      
+
+
+local Tab = Window:MakeTab({
+	Name = "🌀 Teleport 🌀",
+	Icon = "rbxassetid://",
+	PremiumOnly = false
+})
+
+local Section = Tab:AddSection({
+	Name = "Places"
+})
+
+Tab:AddButton({
+    Name = "Shop",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Shop.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Armory.Codes:GetChildren()[5].Symbol
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Safe-House",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Safe House.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Locations.SafeHouse
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Military Tower",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Military Tower.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Locations["Military Tower"]
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Container",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Container.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Armory.Armory.Spawn
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Generator",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Generator.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.MapEnvironment.Interactable.Generator
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "House #1",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the House #1.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Map.Map_Buildings["DOM MAIN"]["mniej wazne"].default
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Cabin",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Cabin.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Map.RakeCollisions:GetChildren()[89]
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Skinwalker",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local target = game.Workspace.Alive:FindFirstChild("Skinny")
+
+        if target and target:FindFirstChild("Head") then
+            local targetHead = target.Head
+
+            local function teleportPlayer()
+                if character:FindFirstChild("HumanoidRootPart") then
+                    local humanoidRootPart = character.HumanoidRootPart
+                    local originalPosition = humanoidRootPart.Position
+
+                    humanoidRootPart.CFrame = targetHead.CFrame
+                    wait(0.1)
+
+                    if (humanoidRootPart.Position - originalPosition).magnitude < 0.1 then
+                        OrionLib:MakeNotification({
+                            Name = "Teleportation Failed",
+                            Content = "Skinwalker has not left the cave yet.",
+                            Time = 5
+                        })
+                    else
+                        OrionLib:MakeNotification({
+                            Name = "Successfully teleported!",
+                            Content = "You have successfully teleported to the Skinny",
+                            Time = 5
+                        })
+                    end
+                end
+            end
+
+            teleportPlayer()
+        else
+            OrionLib:MakeNotification({
+                Name = "Teleportation Failed",
+                Content = "Skinnwalker has not left the cave yet.",
+                Time = 5
+            })
+        end
+    end
+})
+
+local Section = Tab:AddSection({
+	Name = "Caves"
+})
+
+Tab:AddButton({
+    Name = "Cave 1",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Cave 1.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Map.Caves.Cave1.CaveTo
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Cave 2",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Cave 2.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Map.Caves.Cave2.CaveTo
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Cave 3",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Cave 3.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Map.Caves.Cave3.CaveTo
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+local Section = Tab:AddSection({
+	Name = "Armory Codes"
+})
+
+Tab:AddButton({
+    Name = "Paper 1",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Paper 1.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Armory.Codes:GetChildren()[6].Symbol
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Paper 2",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Paper 2.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Armory.Codes.Holder.Symbol
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Paper 3",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Paper 3.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Armory.Codes:GetChildren()[3].Symbol
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Paper 4",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Paper 4.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Armory.Codes:GetChildren()[2].Symbol
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Paper 5",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Paper 5.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Armory.Codes:GetChildren()[4].Symbol
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+Tab:AddButton({
+    Name = "Paper 6",
+    Callback = function()
+      OrionLib:MakeNotification({
+	Name = "Successfully Teleported!",
+	Content = "You have successfully teleported to the Paper 6.",
+	Time = 5
+})
+        local player = game.Players.LocalPlayer
+        local target = game.Workspace.Armory.Codes:GetChildren()[5].Symbol
+
+        local function teleportPlayer()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = target.CFrame
+            end
+        end
+
+        teleportPlayer()
+    end
+})
+
+local Tab = Window:MakeTab({
+	Name = "💵 Gamepasses 💵",
+	Icon = "rbxassetid://",
+	PremiumOnly = false
+})
+
+local Section = Tab:AddSection({
+	Name = "Gamepasses"
+})
+
+Tab:AddParagraph("Warning!","The Gamepasses are client-sided and only you can see them!")
+    
+Tab:AddButton({
+    Name = "SixthSense Gamepass",
+    Callback = function()
+        if not game.Players.LocalPlayer then
+            return
+        end
+
+        local gamepassesFolder = game.Players.LocalPlayer:FindFirstChild("Gamepasses")
+        
+        if not gamepassesFolder then
+            OrionLib:MakeNotification({
+                Name = "Wrong Game!",
+                Content = "SixthSense Gamepass folder not found, You might be in the wrong game.",
+                Time = 5
+            })
+            return
+        end
+
+        local sixthSenseFolder = Instance.new("Folder")
+        sixthSenseFolder.Name = "SixthSense"
+        sixthSenseFolder.Archivable = true
+        sixthSenseFolder.Parent = gamepassesFolder
+
+        OrionLib:MakeNotification({
+            Name = "Gamepass Used Successfully!",
+            Content = "Press X to use the SixthSense Gamepass",
+            Time = 6
+        })
+    end
+})
+
+Tab:AddButton({
+    Name = "HeadLight Gamepass",
+    Callback = function()
+        if not game.Players.LocalPlayer then
+            return
+        end
+
+        local gamepassesFolder = game.Players.LocalPlayer:FindFirstChild("Gamepasses")
+        
+        if not gamepassesFolder then
+            OrionLib:MakeNotification({
+                Name = "Wrong game!",
+                Content = "HeadLight Gamepass folder not found, You might be in the wrong game.",
+                Time = 5
+            })
+            return
+        end
+
+        local headLightFolder = Instance.new("Folder")
+        headLightFolder.Name = "HeadLight"
+        headLightFolder.Archivable = true
+        headLightFolder.Parent = gamepassesFolder
+
+        OrionLib:MakeNotification({
+            Name = "Gamepass Used Successfully!",
+            Content = "Press V to use the HeadLight.",
+            Time = 6
+        })
+    end
+})
+
+Tab:AddButton({
+    Name = "VIP Gamepass",
+    Callback = function()
+        if not game.Players.LocalPlayer then
+            return
+        end
+
+        local gamepassesFolder = game.Players.LocalPlayer:FindFirstChild("Gamepasses")
+        
+        if not gamepassesFolder then
+            OrionLib:MakeNotification({
+                Name = "Wrong game!",
+                Content = "VIP Gamepass folder not found, You might be in the wrong game.",
+                Time = 5
+            })
+            return
+        end
+
+        local vipFolder = Instance.new("Folder")
+        vipFolder.Name = "VIP"
+        vipFolder.Archivable = true
+        vipFolder.Parent = gamepassesFolder
+
+        OrionLib:MakeNotification({
+            Name = "Gamepass Used Successfully!",
+            Content = "Now you have become a VIP.",
+            Time = 6
+        })
+    end
+})
+
+OrionLib:Init()
