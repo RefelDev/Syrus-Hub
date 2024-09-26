@@ -39,6 +39,162 @@ local Section = Tab:AddSection({
 })
 
 Tab:AddButton({
+    Name = "Skinny ESP",
+    Callback = function()
+        OrionLib:MakeNotification({
+            Name = "Skinny Esp Activated!",
+            Content = "Now you can see the Skinny on the map.",
+            Time = 7
+        })  
+        
+        local player = game.Players.LocalPlayer
+        local camera = workspace.CurrentCamera
+        local runService = game:GetService("RunService")
+        local targetName = "Skinny"
+        
+        local billboardGui, nameLabelRed, nameLabelWhite
+        
+        local function getDistance(character)
+            return math.floor((character.HumanoidRootPart.Position - camera.CFrame.Position).magnitude)
+        end
+        
+        local function createESP(target)
+            if not target or not target:FindFirstChild("HumanoidRootPart") then return end
+            
+            billboardGui = Instance.new("BillboardGui")
+            billboardGui.Size = UDim2.new(0, 200, 0, 50)
+            billboardGui.Adornee = target.HumanoidRootPart
+            billboardGui.AlwaysOnTop = true
+            billboardGui.Parent = target.HumanoidRootPart
+            
+            nameLabelRed = Instance.new("TextLabel")
+            nameLabelRed.Size = UDim2.new(1, 0, 0.3, 0)
+            nameLabelRed.Position = UDim2.new(0, 0, 0.4, 0) -- d
+            nameLabelRed.BackgroundTransparency = 1
+            nameLabelRed.TextColor3 = Color3.fromRGB(255, 0, 0)
+            nameLabelRed.TextSize = 10
+            nameLabelRed.Font = Enum.Font.GothamBold
+            nameLabelRed.TextStrokeTransparency = 0.3
+            nameLabelRed.TextStrokeColor3 = Color3.new(0, 0, 0)
+            nameLabelRed.Parent = billboardGui
+            
+            nameLabelWhite = Instance.new("TextLabel")
+            nameLabelWhite.Size = UDim2.new(1, 0, 0.3, 0)
+            nameLabelWhite.Position = UDim2.new(0, 0, 0.55, 0)
+            nameLabelWhite.BackgroundTransparency = 1
+            nameLabelWhite.TextColor3 = Color3.fromRGB(255, 0, 0)
+            nameLabelWhite.TextSize = 10
+            nameLabelWhite.Font = Enum.Font.GothamBold
+            nameLabelWhite.TextStrokeTransparency = 0.5
+            nameLabelWhite.TextStrokeColor3 = Color3.new(0, 0, 0)
+            nameLabelWhite.Parent = billboardGui
+        end
+        
+        local function updateESP(target)
+            if billboardGui and target and target.Parent then
+                local distance = getDistance(target)
+                nameLabelRed.Text = target.Name
+                nameLabelWhite.Text = string.format("%d m away", distance)
+            end
+        end
+        
+        local function monitorTarget()
+            while true do
+                local target = workspace.Alive:FindFirstChild(targetName)
+                if target then
+                    if not billboardGui then
+                        createESP(target)
+                    end
+                    updateESP(target)
+                else
+                    if billboardGui then
+                        billboardGui:Destroy()
+                        billboardGui = nil
+                        nameLabelRed = nil
+                        nameLabelWhite = nil
+                    end
+                end
+                task.wait(0.001)
+            end
+        end
+        
+        monitorTarget()
+    end    
+})
+
+Tab:AddButton({
+    Name = "Supply Drop ESP",
+    Callback = function()
+        OrionLib:MakeNotification({
+            Name = "Supply Drop ESP Activated!",
+            Content = "Now you can see the Supply Drop on the map.",
+            Time = 7
+        })  
+        
+        local player = game.Players.LocalPlayer
+        local camera = workspace.CurrentCamera
+        local runService = game:GetService("RunService")
+        local targetName = "wiazanie"
+        
+        local billboardGui, nameLabelPurple, nameLabelDistance
+        
+        local function getDistance(target)
+            return math.floor((target.Position - camera.CFrame.Position).magnitude)
+        end
+        
+        local function createESP(target)
+            if not target or not target.Position then return end
+            
+            billboardGui = Instance.new("BillboardGui")
+            billboardGui.Size = UDim2.new(0, 200, 0, 50)
+            billboardGui.Adornee = target
+            billboardGui.AlwaysOnTop = true
+            billboardGui.Parent = target
+            
+            nameLabelPurple = Instance.new("TextLabel")
+            nameLabelPurple.Size = UDim2.new(1, 0, 0.5, 0)
+            nameLabelPurple.Position = UDim2.new(0, 0, 0.3, 0)
+            nameLabelPurple.BackgroundTransparency = 1
+            nameLabelPurple.TextColor3 = Color3.fromRGB(128, 0, 128)
+            nameLabelPurple.TextSize = 10
+            nameLabelPurple.Font = Enum.Font.GothamBold
+            nameLabelPurple.TextStrokeTransparency = 0.3
+            nameLabelPurple.TextStrokeColor3 = Color3.new(0, 0, 0)
+            nameLabelPurple.Text = "Supply Drop"
+            nameLabelPurple.Parent = billboardGui
+            
+            nameLabelDistance = Instance.new("TextLabel")
+            nameLabelDistance.Size = UDim2.new(1, 0, 0.5, 0)
+            nameLabelDistance.Position = UDim2.new(0, 0, 0.6, 0)
+            nameLabelDistance.BackgroundTransparency = 1
+            nameLabelDistance.TextColor3 = Color3.fromRGB(128, 0, 128)
+            nameLabelDistance.TextSize = 10
+            nameLabelDistance.Font = Enum.Font.GothamBold
+            nameLabelDistance.TextStrokeTransparency = 0.3
+            nameLabelDistance.TextStrokeColor3 = Color3.new(0, 0, 0)
+            nameLabelDistance.Text = "0 m away"
+            nameLabelDistance.Parent = billboardGui
+        end
+
+        local function updateESP(target)
+            if billboardGui and target and target.Parent then
+                local distance = getDistance(target)
+                nameLabelDistance.Text = string.format("%d m away", distance)
+            end
+        end
+
+        local target = workspace.CarePackage:FindFirstChild(targetName)
+        if target then
+            createESP(target)
+
+            runService.RenderStepped:Connect(function()
+                updateESP(target)
+            end)
+        end
+    end    
+})
+
+Tab:AddButton({
 	Name = "Scrap ESP",
 	Callback = function()
 		local Players = game:GetService("Players")
